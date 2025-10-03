@@ -1,0 +1,10 @@
+source "https://rubygems.org"
+
+gem "aws-sdk-sqs"
+gem "aws-sdk-sns"
+gem "aws-sdk-ses" # optional for SES
+gem "mail"        # for SMTP to MailHog local testing
+gem "dotenv"
+gem "json"
+gem "shoryuken"
+gem "nokogiri"

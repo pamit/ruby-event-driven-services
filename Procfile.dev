@@ -1,0 +1,4 @@
+order: sh -c "cd services/order_service && bundle exec puma -C puma.rb"
+notification: sh -c "cd services/notification_consumer && bundle exec shoryuken -C shoryuken.yml"
+invenstory: sh -c "cd services/invenstory_consumer && bundle exec shoryuken -C shoryuken.yml"
+react: sh -c "cd client && pnpm dev"

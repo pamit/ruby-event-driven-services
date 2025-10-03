@@ -1,0 +1,91 @@
+# version: "3.8" # Obsolete
+services:
+  # localstack:
+  #   container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+  #   image: localstack/localstack
+  #   ports:
+  #     - "127.0.0.1:4566:4566"            # LocalStack Gateway
+  #     - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+  #     # - "4510-4559:4510-4559"
+  #     # - "4566:4566"
+  #   environment:
+  #     - DEBUG=${DEBUG:-0}
+  #     - SERVICES=sqs,sns,events,ses,s3
+  #     - DEBUG=1
+  #     # - LOCALSTACK_HOST=localhost:4566
+  #     - LOCALSTACK_HOST=localstack:4566
+  #   volumes:
+  #     - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #     - ./localstack-init:/etc/localstack/init/ready.d
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+  #     interval: 5s
+  #     timeout: 10s
+  #     retries: 10
+  #     start_period: 30s
+
+  order-service:
+    env_file:
+      - .env
+    build: ./services/order_service
+    ports:
+      - "4567:4567"
+    environment:
+      - RACK_ENV=development
+    restart: unless-stopped
+    deploy:
+      replicas: 1 # N workers
+    # depends_on:
+      # localstack:
+      #   condition: service_healthy
+
+  inventory-consumer:
+    build: ./services/inventory_consumer
+    working_dir: /app # Set the working directory, same as in Dockerfile
+    env_file:
+      - .env
+    environment:
+      - INVENTORY_QUEUE_URL=${INVENTORY_QUEUE_URL}
+    restart: unless-stopped
+    deploy:
+      replicas: 1 # N workers
+    depends_on:
+      order-service:
+        condition: service_started
+
+  notification-consumer:
+    build: ./services/notification_consumer
+    working_dir: /app # Set the working directory, same as in Dockerfile
+    env_file:
+      - .env
+    restart: unless-stopped
+    deploy:
+      replicas: 1 # N workers
+    depends_on:
+      - order-service
+      - mailhog
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    volumes:
+      - ./client:/client
+      - /client/node_modules  # prevent overwriting node_modules
+    ports:
+      - "5173:5173"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - WDS_SOCKET_PORT=0
+    depends_on:
+      - order-service
+
+  mailhog:
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"

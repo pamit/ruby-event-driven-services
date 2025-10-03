@@ -1,0 +1,5 @@
+require: ./worker.rb
+concurrency: 5
+delay: 0
+queues:
+  - inventory-queue

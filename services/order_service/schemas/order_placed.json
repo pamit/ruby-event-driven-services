@@ -1,0 +1,45 @@
+{
+  "title": "OrderPlaced",
+  "type": "object",
+  "properties": {
+    "order_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "sku",
+          "quantity"
+        ]
+      }
+    },
+    "total": {
+      "type": "number"
+    },
+    "placed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "order_id",
+    "user_id",
+    "items",
+    "total",
+    "placed_at"
+  ]
+}

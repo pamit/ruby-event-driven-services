@@ -1,0 +1,12 @@
+source "https://rubygems.org"
+
+gem "sinatra"
+gem "puma"
+gem "aws-sdk-eventbridge"
+gem "aws-sdk-sqs"
+gem "json"
+gem "json-schema"
+gem "dotenv"
+gem "securerandom"
+gem "rackup"
+gem "sinatra-cross_origin"
